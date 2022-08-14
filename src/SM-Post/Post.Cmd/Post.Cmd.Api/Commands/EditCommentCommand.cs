@@ -6,9 +6,10 @@ using CQRS.Core.Commands;
 
 namespace Post.Cmd.Api.Commands
 {
-	public class NewPostCommand : BaseCommand
+	public class EditCommentCommand : BaseCommand
 	{
-		public string Author { get; set; }
-		public string Message { get; set; }
+		public Guid CommentId { get; set; }
+		public string Comment { get; set; }
+		public string Username { get; set; }
 	}
 }
