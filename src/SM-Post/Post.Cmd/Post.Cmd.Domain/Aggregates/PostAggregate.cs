@@ -73,5 +73,30 @@ namespace Post.Cmd.Domain.Aggregates
 		{
 			_id = @event.Id;
 		}
+
+		public void AddComment(string comment, string username)
+		{
+			if (!_active) throw new InvalidOperationException("You cannot add a comment to an inactive post!");
+
+			if (string.IsNullOrWhiteSpace(comment))
+			{
+				throw new InvalidOperationException($"The value of {nameof(comment)} cannot be null or empty. Please provide a valid {nameof(comment)!}");
+			}
+
+			RaiseEvent(new CommentAddedEvent
+			{
+				Id = _id,
+				CommentId = Guid.NewGuid(),
+				Comment = comment,
+				Username = username,
+				CommentDate = DateTime.UtcNow
+			});
+		}
+
+		public void Apply(CommentAddedEvent @event)
+		{
+			_id = @event.Id;
+			_comments.Add(@event.CommentId, new Tuple<string, string>(@event.Comment, @event.Username));
+		}
 	}
 }
