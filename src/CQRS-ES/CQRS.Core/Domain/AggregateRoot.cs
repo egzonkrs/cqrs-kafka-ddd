@@ -21,6 +21,7 @@ namespace CQRS.Core.Domain
 
 		private void ApplyChange(BaseEvent @event, bool isNew)
 		{
+			/* Reflection */
 			var method = this.GetType().GetMethod("Apply", new Type[] { @event.GetType() });
 
 			if (method is null)
