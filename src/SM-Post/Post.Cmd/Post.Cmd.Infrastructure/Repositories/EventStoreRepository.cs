@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MongoDB.Driver;
 using CQRS.Core.Domain;
 using CQRS.Core.Events;
-using MongoDB.Driver;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Post.Cmd.Infrastructure.Config;
 
