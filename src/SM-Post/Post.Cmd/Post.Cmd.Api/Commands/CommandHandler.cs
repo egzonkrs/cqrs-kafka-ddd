@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using CQRS.Core.Handlers;
+using System.Threading.Tasks;
 using Post.Cmd.Domain.Aggregates;
 
 namespace Post.Cmd.Api.Commands
@@ -51,14 +51,20 @@ namespace Post.Cmd.Api.Commands
 			await _eventSourcingHandler.SaveAsync(aggregate);
 		}
 
-		public Task HandleAsync(RemoveCommentCommand command)
+		public async Task HandleAsync(RemoveCommentCommand command)
 		{
-			throw new System.NotImplementedException();
+			var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
+			aggregate.RemoveComment(command.Id, command.Username);
+
+			await _eventSourcingHandler.SaveAsync(aggregate);
 		}
 
-		public Task HandleAsync(DeletePostCommand command)
+		public async Task HandleAsync(DeletePostCommand command)
 		{
-			throw new System.NotImplementedException();
+			var aggregate = await _eventSourcingHandler.GetByIdAsync(command.Id);
+			aggregate.DeletedPost(command.Username);
+
+			await _eventSourcingHandler.SaveAsync(aggregate);
 		}
 	}
 }
