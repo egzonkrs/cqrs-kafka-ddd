@@ -1,11 +1,15 @@
 using CQRS.Core.Domain;
 using CQRS.Core.Infrastructure;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Post.Cmd.Infrastructure.Config;
-using Post.Cmd.Infrastructure.Repositories;
 using Post.Cmd.Infrastructure.Stores;
+using Post.Cmd.Infrastructure.Repositories;
+using Microsoft.Extensions.DependencyInjection;
+using CQRS.Core.Handlers;
+using Post.Cmd.Infrastructure.Handlers;
+using Post.Cmd.Domain.Aggregates;
+using Post.Cmd.Api.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<MongoDbConfig>(builder.Configuration.GetSection(nameof(MongoDbConfig)));
 builder.Services.AddScoped<IEventStoreRepository, EventStoreRepository>();
 builder.Services.AddScoped<IEventStore, EventStore>();
+builder.Services.AddScoped<IEventSourcingHandler<PostAggregate>, EventSourcingHandler>();
+builder.Services.AddScoped<ICommandHandler, CommandHandler>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
