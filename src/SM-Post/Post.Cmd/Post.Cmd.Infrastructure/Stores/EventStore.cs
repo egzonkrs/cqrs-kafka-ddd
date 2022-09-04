@@ -1,11 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CQRS.Core.Domain;
 using CQRS.Core.Events;
 using CQRS.Core.Exceptions;
-using System.Threading.Tasks;
 using CQRS.Core.Infrastructure;
-using System.Collections.Generic;
+using CQRS.Core.Producers;
+
 using Post.Cmd.Domain.Aggregates;
 
 namespace Post.Cmd.Infrastructure.Stores
@@ -13,10 +15,12 @@ namespace Post.Cmd.Infrastructure.Stores
 	public class EventStore : IEventStore
 	{
 		public readonly IEventStoreRepository _eventStoreRepository;
+		public readonly IEventProducer _eventProducer;
 
-		public EventStore(IEventStoreRepository eventStoreRepository)
+		public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer)
 		{
 			_eventStoreRepository = eventStoreRepository;
+			_eventProducer = eventProducer;
 		}
 
 		public async Task<List<BaseEvent>> GetEventsAsync(Guid aggregateId)
@@ -59,6 +63,10 @@ namespace Post.Cmd.Infrastructure.Stores
 				};
 
 				await _eventStoreRepository.SaveAsync(eventModel);
+
+				// var topic = Environment.GetEnvironmentVariable("KAFKA_TOPIC");
+				var topic = "social.media.post.events";
+				await _eventProducer.ProduceAsync(topic, @event);
 			}
 		}
 	}
