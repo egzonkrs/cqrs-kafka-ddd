@@ -17,6 +17,13 @@ Action<DbContextOptionsBuilder> configureDbContext = (o =>
 builder.Services.AddDbContext<DatabaseContext>(configureDbContext);
 builder.Services.AddSingleton<DatabaseContextFactory>(new DatabaseContextFactory(configureDbContext));
 
+// Create database and tables from code
+var databaseContext = builder.Services
+	.BuildServiceProvider()
+	.GetRequiredService<DatabaseContext>();
+
+databaseContext.Database.EnsureCreated();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
