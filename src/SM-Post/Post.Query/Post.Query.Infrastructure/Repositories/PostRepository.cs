@@ -1,7 +1,9 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Post.Query.Domain.Entities;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using Post.Query.Domain.Repositories;
 using Post.Query.Infrastructure.DataAccess;
 
@@ -24,38 +26,79 @@ public class PostRepository : IPostRepository
         await context.SaveChangesAsync();
     }
 
-    public Task DeleteAsync(Guid postId)
+    public async Task DeleteAsync(Guid postId)
     {
-        throw new NotImplementedException();
+        using DatabaseContext context = _contextFactory.CreateDbContext();
+
+        var post = await GetByIdAsync(postId);
+
+        if (post is null) return;
+
+        context.Posts.Remove(post);
+        await context.SaveChangesAsync();
     }
 
-    public Task<PostEntity> GetByIdAsync(Guid postId)
+    public async Task<PostEntity> GetByIdAsync(Guid postId)
     {
-        throw new NotImplementedException();
+        using DatabaseContext context = _contextFactory.CreateDbContext();
+
+        return await context.Posts
+            .Include(x => x.Comments)
+            .FirstOrDefaultAsync(x => x.PostId == postId);
     }
 
-    public Task<List<PostEntity>> ListAllAsync()
+    public async Task<List<PostEntity>> ListAllAsync()
     {
-        throw new NotImplementedException();
+        using DatabaseContext context = _contextFactory.CreateDbContext();
+
+        return await context.Posts
+            .AsNoTracking()
+            .Include(x => x.Comments)
+            .AsNoTracking()
+            .ToListAsync();
     }
 
-    public Task<List<PostEntity>> ListByAuthorAsync(string author)
+    public async Task<List<PostEntity>> ListByAuthorAsync(string author)
     {
-        throw new NotImplementedException();
+        using DatabaseContext context = _contextFactory.CreateDbContext();
+
+        return await context.Posts
+            .AsNoTracking()
+            .Include(x => x.Comments)
+            .AsNoTracking()
+            .Where(x => x.Author.Contains(author))
+            .ToListAsync();
     }
 
-    public Task<List<PostEntity>> ListWithCommentsAsync()
+    public async Task<List<PostEntity>> ListWithCommentsAsync()
     {
-        throw new NotImplementedException();
+        using DatabaseContext context = _contextFactory.CreateDbContext();
+
+        return await context.Posts
+            .AsNoTracking()
+            .Include(x => x.Comments)
+            .AsNoTracking()
+            .Where(x => x.Comments != null && x.Comments.Any())
+            .ToListAsync();
     }
 
-    public Task<List<PostEntity>> ListWithLikes(int numberOfLikes)
+    public async  Task<List<PostEntity>> ListWithLikes(int numberOfLikes)
     {
-        throw new NotImplementedException();
+        using DatabaseContext context = _contextFactory.CreateDbContext();
+
+        return await context.Posts
+            .AsNoTracking()
+            .Include(x => x.Comments)
+            .AsNoTracking()
+            .Where(x => x.Likes >= numberOfLikes)
+            .ToListAsync();
     }
 
-    public Task UpdateAsync(PostEntity post)
+    public async Task UpdateAsync(PostEntity post)
     {
-        throw new NotImplementedException();
+        using DatabaseContext context = _contextFactory.CreateDbContext();
+        context.Posts.Update(post);
+
+        await context.SaveChangesAsync();
     }
 }
